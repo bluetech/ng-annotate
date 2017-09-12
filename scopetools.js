@@ -35,7 +35,9 @@ function createScopes(node, parent) {
         // Variable declarations names goes in current scope
         node.declarations.forEach(function(declarator) {
             const name = declarator.id.name;
-            node.$scope.add(name, node.kind, declarator.id, declarator.range[1]);
+            if (is.string(name)) {
+                node.$scope.add(name, node.kind, declarator.id, declarator.range[1]);
+            }
         });
 
     } else if (isFunction(node)) {
@@ -62,7 +64,10 @@ function createScopes(node, parent) {
         }
 
         node.params.forEach(function(param) {
-            node.$scope.add(param.name, "param", param, null);
+            var name = param.name;
+            if (is.string(name)) {
+                node.$scope.add(name, "param", param, null);
+            }
         });
 
     } else if (isForWithConstLet(node) || isForInOfWithConstLet(node)) {
