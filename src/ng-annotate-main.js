@@ -494,25 +494,25 @@ function replaceNodeWith(node, newNode) {
     assert(done);
 }
 
-function insertArray(ctx, functionExpression, fragments, quot) {
+function insertArray(ctx, functionExpression, positioningNode, fragments, quot) {
     const args = stringify(ctx, functionExpression.params, quot);
 
     fragments.push({
-        start: functionExpression.range[0],
-        end: functionExpression.range[0],
+        start: positioningNode.range[0],
+        end: positioningNode.range[0],
         str: args.slice(0, -1) + ", ",
         loc: {
-            start: functionExpression.loc.start,
-            end: functionExpression.loc.start
+            start: positioningNode.loc.start,
+            end: positioningNode.loc.start
         }
     });
     fragments.push({
-        start: functionExpression.range[1],
-        end: functionExpression.range[1],
+        start: positioningNode.range[1],
+        end: positioningNode.range[1],
         str: "]",
         loc: {
-            start: functionExpression.loc.end,
-            end: functionExpression.loc.end
+            start: positioningNode.loc.end,
+            end: positioningNode.loc.end
         }
     });
 }
@@ -593,8 +593,26 @@ function judgeSuspects(ctx) {
         }
     }
 
+    const interimSuspects = suspects.map(function(target) {
+        let node;
+        if (target.kind === "constructor") {
+            node = target;
+            while (node = node.$parent) {
+                if (node.type === "ExpressionStatement") break;
+            }
+            if (!node) {
+                node = target;
+                while (node = node.$parent) {
+                    if (isClassExpression(node) || isClassDeclaration(node)) break;
+                }
+            }
+            node.$chained = chainedRegular;
+        }
+        return node || target;
+    });
+
     // create final suspects by jumping, following, uniq'ing, blocking
-    const finalSuspects = makeUnique(suspects.map(function(target) {
+    const finalSuspects = makeUnique(interimSuspects.map(function(target) {
         const jumped = jumpOverIife(target);
         const jumpedAndFollowed = followReference(jumped) || jumped;
 
@@ -619,7 +637,10 @@ function judgeSuspects(ctx) {
         } else if (mode === "remove" && isAnnotatedArray(target)) {
             removeArray(target, fragments);
         } else if (is.someof(mode, ["add", "rebuild"]) && isFunctionExpressionWithArgs(target)) {
-            insertArray(ctx, target, fragments, quot);
+            insertArray(ctx, target, target, fragments, quot);
+        } else if (is.someof(mode, ["add", "rebuild"]) && isClassExpression(target)) {
+            const constructorFn = target.body.body.find(function(item) {return item.kind === 'constructor'}).value;
+            insertArray(ctx, constructorFn, target, fragments, quot);
         } else if (isGenericProviderName(target)) {
             renameProviderDeclarationSite(ctx, target, fragments);
         } else {
@@ -720,7 +741,7 @@ function followReference(node) {
         // {type: "VariableDeclarator", id: {type: "Identifier", name: "foo"}, init: ..}
         return parent;
     } else if (kind === "fun") {
-        assert(ptype === "FunctionDeclaration" || ptype === "FunctionExpression")
+        assert(ptype === "FunctionDeclaration" || ptype === "FunctionExpression");
         // FunctionDeclaration is the common case, i.e.
         // function foo(a, b) {}
 
@@ -825,7 +846,39 @@ function judgeInjectArraySuspect(node, ctx) {
 
     node = jumpOverIife(node);
 
-    if (ctx.isFunctionExpressionWithArgs(node)) {
+    if (isClassExpression(node) ||
+        isClassDeclaration(node)) {
+        // /*@ngInject*/ class Foo { constructor($scope) {} }
+        // /*@ngInject*/ Foo = class { constructor($scope) {} }
+
+        let className = node.id ? node.id.name : declaratorName;
+        assert(className);
+        let classBody = node.body.body;
+
+        let constructor = classBody.find(function(item) {return item.kind === 'constructor'});
+
+        addRemoveInjectArray(
+            constructor.value.params,
+            insertPos,
+            className);
+
+    } else if (node.type === "ExpressionStatement" && node.expression.type === "AssignmentExpression" &&
+               isClassExpression(node.expression.right)) {
+        // foo.bar[0] = /*@ngInject*/ class($scope) {}
+
+        let classBody = node.expression.right.body.body;
+        let constructor = classBody.find(function(item) {return item.kind === 'constructor'})
+
+        let name = ctx.srcForRange(node.expression.left.range);
+        addRemoveInjectArray(
+            constructor.value.params,
+            isSemicolonTerminated ? insertPos : {
+                pos: node.expression.right.range[1],
+                loc: node.expression.right.loc.end
+            },
+            name);
+
+    } else if (ctx.isFunctionExpressionWithArgs(node)) {
         // var x = 1, y = function(a,b) {}, z;
 
         assert(declaratorName);
@@ -1032,14 +1085,25 @@ function isAnnotatedArray(node) {
 
     return true;
 }
+
+function isClassExpression(node) {
+  return node.type === "ClassExpression";
+}
+
+function isClassDeclaration(node) {
+  return node.type === "ClassDeclaration";
+}
+
 function isFunctionExpressionWithArgs(node) {
     return node.type === "FunctionExpression" && node.params.length >= 1;
 }
+
 function isFunctionDeclarationWithArgs(node) {
     // For `export default function() {...}`, `id` is null, which means
     // we cannot inject it. So ignore that.
     return node.type === "FunctionDeclaration" && node.params.length >= 1 && node.id !== null;
 }
+
 function isGenericProviderName(node) {
     return node.type === "Literal" && is.string(node.value);
 }
@@ -1167,6 +1231,8 @@ module.exports = function ngAnnotate(src, options) {
         suspects: suspects,
         blocked: blocked,
         lut: lut,
+        isClassExpression: isClassExpression,
+        isClassDeclaration: isClassDeclaration,
         isFunctionExpressionWithArgs: isFunctionExpressionWithArgs,
         isFunctionDeclarationWithArgs: isFunctionDeclarationWithArgs,
         isAnnotatedArray: isAnnotatedArray,
