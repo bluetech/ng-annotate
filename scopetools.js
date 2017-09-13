@@ -35,6 +35,7 @@ function createScopes(node, parent) {
         // Variable declarations names goes in current scope
         node.declarations.forEach(function(declarator) {
             const name = declarator.id.name;
+            // Ignore destructuring assigments on variable declaration (no variable name)
             if (is.string(name)) {
                 node.$scope.add(name, node.kind, declarator.id, declarator.range[1]);
             }
@@ -65,6 +66,7 @@ function createScopes(node, parent) {
 
         node.params.forEach(function(param) {
             var name = param.name;
+            // Ignore destructuring assigments on function parameters (no parameter name)
             if (is.string(name)) {
                 node.$scope.add(name, "param", param, null);
             }
