@@ -1,3 +1,8 @@
+## UNRELEASED
+ * Require node>=4.0.0.
+ * Reorganize internal directory structure. The main file moved to
+   `src/ng-annotate-main.js`.
+
 ## v1.6.0 2017-05-28
  * Switch from tilde ~ dependencies to ^ caret dependencies.
 

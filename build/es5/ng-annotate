@@ -1,3 +1,0 @@
-#!/bin/sh
-echo "Error: ng-annotate has not been built.\nRetry after doing this: cd <ng-annotate-path>; npm install; cd build; ./build.sh"
-exit 1

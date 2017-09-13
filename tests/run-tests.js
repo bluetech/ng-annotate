@@ -4,7 +4,7 @@
 
 "use strict";
 
-const ngAnnotate = require("./ng-annotate-main");
+const ngAnnotate = require("../src/ng-annotate-main");
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -16,7 +16,7 @@ const coffee = require("coffee-script");
 const convertSourceMap = require("convert-source-map");
 
 // optionals
-const ngAnnotateAdfPlugin = require("./optionals/angular-dashboard-framework.js");
+const ngAnnotateAdfPlugin = require("../src/optionals/angular-dashboard-framework.js");
 
 function slurp(filename) {
     return String(fs.readFileSync(filename));

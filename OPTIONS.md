@@ -29,13 +29,13 @@ controllers, etc.) with a new name when declared and referenced through annotati
 Use it like this: `--rename oldname1 newname1 oldname2 newname2`
 
 *experimental* Use the `--plugin` option to load a user plugin with the provided path,
-1.x may change API). See [plugin-example.js](plugin-example.js) for more info.
+1.x may change API). See [plugin-example.js](examples/plugin-example.js) for more info.
 
 *experimental* Use the `--stats` option to print statistics on stderr.
 
 
 ## Library (API)
-ng-annotate can be used as a library. See [ng-annotate.js](ng-annotate.js) for further info about
+ng-annotate can be used as a library. See [ng-annotate.js](src/ng-annotate.js) for further info about
 options and return value.
 
 ```js

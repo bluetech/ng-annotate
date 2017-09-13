@@ -1,0 +1,5 @@
+/tests/
+/examples/
+/run-tests.js
+/.travis.yml
+/.npmignore

@@ -34,10 +34,12 @@ function createScopes(node, parent) {
     } else if (node.type === "VariableDeclaration") {
         // Variable declarations names goes in current scope
         node.declarations.forEach(function(declarator) {
-            const name = declarator.id.name;
-            // Ignore destructuring assigments on variable declaration (no variable name)
-            if (is.string(name)) {
+            const pattern = declarator.id;
+            if (pattern.type === "Identifier") {
+                const name = declarator.id.name;
                 node.$scope.add(name, node.kind, declarator.id, declarator.range[1]);
+            } else {
+                // Ignore destructuring assignments on variable declaration (there's no variable name)
             }
         });
 
@@ -65,10 +67,10 @@ function createScopes(node, parent) {
         }
 
         node.params.forEach(function(param) {
-            var name = param.name;
-            // Ignore destructuring assigments on function parameters (no parameter name)
-            if (is.string(name)) {
-                node.$scope.add(name, "param", param, null);
+            if (param.name) {
+                node.$scope.add(param.name, "param", param, null);
+            } else {
+                // Ignore destructuring assignments on function parameters (there's no variable name)
             }
         });
 
