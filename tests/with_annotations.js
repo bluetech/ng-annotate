@@ -1083,3 +1083,26 @@ export var exportVariableFunctionVar3 = function($scope) {
     "ngInject";
 }
 exportVariableFunctionVar3.$inject = ["$scope"];
+
+// issue #2 (ng-annotate-patched) - Error using ES6 destructuring
+
+(function(){
+    /** @ngInject */
+    DestructuringTestClass.$inject = ["$log"];
+    function DestructuringTestClass($log) {
+        this.$log = $log;
+    }
+    DestructuringTestClass.prototype.variableDeclarationTest = function () {
+        const {a,b} = {a:1, b:2};
+        const [c,d] = [1,2];
+    };
+    DestructuringTestClass.prototype.fnParametersTest = function ({a,b}, [c,d], ... rest) {
+        // empty
+    };
+    DestructuringTestClass.prototype.propertyShorthandTest = function (a,b) {
+        return {
+            object: {a,b},
+            array: [a,b],
+        };
+    };
+})();

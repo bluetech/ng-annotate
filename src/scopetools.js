@@ -38,16 +38,8 @@ function createScopes(node, parent) {
             if (pattern.type === "Identifier") {
                 const name = declarator.id.name;
                 node.$scope.add(name, node.kind, declarator.id, declarator.range[1]);
-            } else if (pattern.type === "ObjectPattern") {
-                assert(false, 'ng-annotate-patched does not support object destructuring')
-            } else if (pattern.type === "ArrayPattern") {
-                assert(false, 'ng-annotate-patched does not support array destructuring')
-            } else if (pattern.type === "RestElements") {
-                assert(false, 'ng-annotate-patched does not support rest element destructuring')
-            } else if (pattern.type === "AssignmentPattern") {
-                assert(false, 'ng-annotate-patched does not support assignment pattern destructuring')
             } else {
-                assert(false);
+                // Ignore destructuring assignments on variable declaration (there's no variable name)
             }
         });
 
@@ -75,7 +67,11 @@ function createScopes(node, parent) {
         }
 
         node.params.forEach(function(param) {
-            node.$scope.add(param.name, "param", param, null);
+            if (param.type === "Identifier") {
+                node.$scope.add(param.name, "param", param, null);
+            } else {
+                // Ignore destructuring assignments on function parameters (there's no variable name)
+            }
         });
 
     } else if (isForWithConstLet(node) || isForInOfWithConstLet(node)) {
