@@ -67,7 +67,7 @@ function createScopes(node, parent) {
         }
 
         node.params.forEach(function(param) {
-            if (param.name) {
+            if (param.type === "Identifier") {
                 node.$scope.add(param.name, "param", param, null);
             } else {
                 // Ignore destructuring assignments on function parameters (there's no variable name)

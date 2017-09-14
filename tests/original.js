@@ -1043,16 +1043,17 @@ export var exportVariableFunctionVar3 = function($scope) {
     function DestructuringTestClass($log) {
         this.$log = $log;
     }
-    // This gives error
     DestructuringTestClass.prototype.variableDeclarationTest = function () {
         const {a,b} = {a:1, b:2};
+        const [c,d] = [1,2];
     };
-    // This gives error
-    DestructuringTestClass.prototype.fnParametersTest = function ([a,b]) {
-        return a + b;
+    DestructuringTestClass.prototype.fnParametersTest = function ({a,b}, [c,d], ... rest) {
+        // empty
     };
-    // This is OK
     DestructuringTestClass.prototype.propertyShorthandTest = function (a,b) {
-        return {a,b};
+        return {
+            object: {a,b},
+            array: [a,b],
+        };
     };
 })();
