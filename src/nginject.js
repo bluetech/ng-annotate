@@ -12,8 +12,12 @@ module.exports = {
 function inspectNode(node, ctx) {
     if (node.type === "CallExpression") {
         inspectCallExpression(node, ctx);
+    } else if (node.$parent && node.$parent.type === "MethodDefinition") {
+        // Ignore method function, constructor is processed below
     } else if (node.type === "FunctionExpression" || node.type === "FunctionDeclaration") {
         inspectFunction(node, ctx);
+    } else if (node.type === "MethodDefinition" && node.kind === 'constructor') {
+        inspectConstructor(node, ctx);
     }
 }
 
@@ -74,6 +78,17 @@ function inspectFunction(node, ctx) {
     } else {
         addSuspect(node, ctx, block);
     }
+}
+
+function inspectConstructor(node, ctx) {
+    const constructorFn = node.value;
+    const str = matchPrologueDirectives(ngAnnotatePrologueDirectives, constructorFn);
+    if (!str) {
+        return;
+    }
+    const block = (str === "ngNoInject");
+
+    addSuspect(node, ctx, block);
 }
 
 function matchPrologueDirectives(prologueDirectives, node) {

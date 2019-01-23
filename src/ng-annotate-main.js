@@ -469,25 +469,25 @@ function replaceNodeWith(node, newNode) {
     assert(done);
 }
 
-function insertArray(ctx, functionExpression, fragments, quot) {
+function insertArray(ctx, functionExpression, positioningNode, fragments, quot) {
     const args = stringify(ctx, functionExpression.params, quot);
 
     fragments.push({
-        start: functionExpression.range[0],
-        end: functionExpression.range[0],
+        start: positioningNode.range[0],
+        end: positioningNode.range[0],
         str: args.slice(0, -1) + ", ",
         loc: {
-            start: functionExpression.loc.start,
-            end: functionExpression.loc.start
+            start: positioningNode.loc.start,
+            end: positioningNode.loc.start
         }
     });
     fragments.push({
-        start: functionExpression.range[1],
-        end: functionExpression.range[1],
+        start: positioningNode.range[1],
+        end: positioningNode.range[1],
         str: "]",
         loc: {
-            start: functionExpression.loc.end,
-            end: functionExpression.loc.end
+            start: positioningNode.loc.end,
+            end: positioningNode.loc.end
         }
     });
 }
@@ -568,8 +568,19 @@ function judgeSuspects(ctx) {
         }
     }
 
+    const interimSuspects = suspects.map(function(node) {
+        if (isConstructorWithArgs(node)) {
+            while (node = node.$parent) {
+                if (node.type === "ExpressionStatement" || isClassExpression(node) || isClassDeclaration(node)) break;
+            }
+
+            node.$chained = chainedRegular;
+        }
+        return node;
+    });
+
     // create final suspects by jumping, following, uniq'ing, blocking
-    const finalSuspects = makeUnique(suspects.map(function(target) {
+    const finalSuspects = makeUnique(interimSuspects.map(function(target) {
         const jumped = jumpOverIife(target);
         const jumpedAndFollowed = followReference(jumped) || jumped;
 
@@ -589,12 +600,16 @@ function judgeSuspects(ctx) {
             return;
         }
 
+        let constructor;
+
         if (mode === "rebuild" && isAnnotatedArray(target)) {
             replaceArray(ctx, target, fragments, quot);
         } else if (mode === "remove" && isAnnotatedArray(target)) {
             removeArray(target, fragments);
         } else if (["add", "rebuild"].includes(mode) && isFunctionExpressionWithArgs(target)) {
-            insertArray(ctx, target, fragments, quot);
+            insertArray(ctx, target, target, fragments, quot);
+        } else if (["add", "rebuild"].includes(mode) && isClassExpression(target) && (constructor = findClassConstructorWithArgs(target))) {
+            insertArray(ctx, constructor.value, target, fragments, quot);
         } else if (isGenericProviderName(target)) {
             renameProviderDeclarationSite(ctx, target, fragments);
         } else {
@@ -800,7 +815,35 @@ function judgeInjectArraySuspect(node, ctx) {
 
     node = jumpOverIife(node);
 
-    if (ctx.isFunctionExpressionWithArgs(node)) {
+    let constructor;
+
+    if ((isClassExpression(node) || isClassDeclaration(node)) && (constructor = ctx.findClassConstructorWithArgs(node))) {
+        // /*@ngInject*/ class Foo { constructor($scope) {} }
+        // /*@ngInject*/ Foo = class { constructor($scope) {} }
+
+        const className = node.id ? node.id.name : declaratorName;
+        assert(className);
+
+        addRemoveInjectArray(
+            constructor.value.params,
+            insertPos,
+            className);
+
+    } else if (node.type === "ExpressionStatement" && node.expression.type === "AssignmentExpression" &&
+               isClassExpression(node.expression.right) && (constructor = ctx.findClassConstructorWithArgs(node.expression.right))) {
+        // foo.bar[0] = /*@ngInject*/ class($scope) {}
+
+        const className = ctx.srcForRange(node.expression.left.range);
+
+        addRemoveInjectArray(
+            constructor.value.params,
+            isSemicolonTerminated ? insertPos : {
+                pos: node.expression.right.range[1],
+                loc: node.expression.right.loc.end
+            },
+            className);
+
+    } else if (ctx.isFunctionExpressionWithArgs(node)) {
         // var x = 1, y = function(a,b) {}, z;
 
         assert(declaratorName);
@@ -1007,6 +1050,16 @@ function isAnnotatedArray(node) {
 
     return true;
 }
+
+function isConstructorWithArgs (node) {
+    return node.kind === 'constructor' && node.value.params.length >= 1;
+}
+function isClassExpression(node) {
+  return node.type === "ClassExpression";
+}
+function isClassDeclaration(node) {
+  return node.type === "ClassDeclaration";
+}
 function isFunctionExpressionWithArgs(node) {
     return node.type === "FunctionExpression" && node.params.length >= 1;
 }
@@ -1017,6 +1070,9 @@ function isFunctionDeclarationWithArgs(node) {
 }
 function isGenericProviderName(node) {
     return node.type === "Literal" && typeof node.value === "string";
+}
+function findClassConstructorWithArgs(classFunction) {
+    return classFunction.body.body.find(isConstructorWithArgs);
 }
 
 function uniqifyFragments(fragments) {
@@ -1164,9 +1220,12 @@ module.exports = function ngAnnotate(src, options) {
         suspects: suspects,
         blocked: blocked,
         lut: lut,
+        isClassExpression: isClassExpression,
+        isClassDeclaration: isClassDeclaration,
         isFunctionExpressionWithArgs: isFunctionExpressionWithArgs,
         isFunctionDeclarationWithArgs: isFunctionDeclarationWithArgs,
         isAnnotatedArray: isAnnotatedArray,
+        findClassConstructorWithArgs: findClassConstructorWithArgs,
         addModuleContextDependentSuspect: addModuleContextDependentSuspect,
         addModuleContextIndependentSuspect: addModuleContextIndependentSuspect,
         stringify: stringify,

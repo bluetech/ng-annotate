@@ -187,6 +187,12 @@ function run(ngAnnotate) {
     console.log("testing optionals/angular-dashboard-framework.js (removing annotations)");
     test(adf, ngAnnotate(adfAnnotated, {remove: true, plugin: [ngAnnotateAdfPlugin]}).src, "optionals/angular-dashboard-framework.js");
 
+    // issue #3 (ng-annotate-patched) - Support for ES6 Classes
+    console.log("testing es6 classes");
+    const es6Classes = slurp("tests/es6-classes.js");
+    const es6ClassesAnnotated = ngAnnotate(es6Classes, {add: true}).src;
+    test(slurp("tests/es6-classes.annotated.js"), es6ClassesAnnotated, "tests/es6-classes.annotated.js");
+
     console.log("testing performance");
     const ng1 = String(fs.readFileSync("tests/angular.js"));
     const ng5 = ng1 + ng1 + ng1 + ng1 + ng1;

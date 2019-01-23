@@ -109,8 +109,11 @@ incorrectly (a "false positive"). They are called `/*@ngNoInject*/`, `ngNoInject
 and `"ngNoInject"` and do exactly what you think they do.
 
 
-## ES6 and TypeScript support
-ng-annotate supports ES5 as input so run it with the output from Babel, Traceur,
+## ES6 support
+ES6 class syntax is supported with use of `/*@ngInject*/` and `"ngInject"` annotations. For more information please see [ES6 test file](tests/es6-classes.js).
+
+## Typescript and other transpilers support
+ng-annotate supports ES6 and below as input so run it with the output from Babel, Traceur,
 TypeScript (tsc) and the likes. Use `"ngInject"` on functions you want annotated.
 Your transpiler should preserve directive prologues, if not please file a bug on it.
 
