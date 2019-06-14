@@ -14,7 +14,7 @@ function inspectNode(node, ctx) {
         inspectCallExpression(node, ctx);
     } else if (node.$parent && node.$parent.type === "MethodDefinition") {
         // Ignore method function, constructor is processed below
-    } else if (node.type === "FunctionExpression" || node.type === "FunctionDeclaration") {
+    } else if (node.type === "FunctionExpression" || (node.type === "ArrowFunctionExpression" && !node.expression) || node.type === "FunctionDeclaration") {
         inspectFunction(node, ctx);
     } else if (node.type === "MethodDefinition" && node.kind === 'constructor') {
         inspectConstructor(node, ctx);
@@ -208,7 +208,7 @@ function nestedObjectValues(node, res) {
 
     node.properties.forEach(function(prop) {
         const v = prop.value;
-        if (["FunctionExpression", "ArrayExpression"].includes(v.type)) {
+        if (["FunctionExpression", "ArrowFunctionExpression", "ArrayExpression"].includes(v.type)) {
             res.push(v);
         } else if (v.type === "ObjectExpression") {
             nestedObjectValues(v, res);

@@ -123,6 +123,11 @@ function run(ngAnnotate) {
     const annotated = ngAnnotate(original, {add: true}).src;
     test(slurp("tests/with_annotations.js"), annotated, "with_annotations.js");
 
+    console.log("testing adding annotations with arrow functions");
+    const arrowFunctions = slurp("tests/arrow-functions.js");
+    const arrowFunctionsAnnotated = ngAnnotate(arrowFunctions, {add: true}).src;
+    test(slurp("tests/arrow-functions.annotated.js"), arrowFunctionsAnnotated, "arrow-functions.annotated.js");
+
     console.log("testing adding annotations with dynamicImport enabled");
     const annotatedWithDynamicImportEnabled = ngAnnotate(original, {add: true, dynamicImport: true}).src;
     test(slurp("tests/with_annotations.js"), annotatedWithDynamicImportEnabled, "with_annotations.js");
