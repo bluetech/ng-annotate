@@ -1040,6 +1040,9 @@ function jumpOverIife(node) {
      * IIFE as in:
      *  - (() => { return 'value' })()
      *  - (function { return 'value' })()
+     *
+     *  needs to loop over children, as the return could be anywhere inside the body, as in:
+     *  - (function { console.log('something before'); return 'value'; console.log('something behind, but valid javascript'); }()
      */
     const outerbody = outerfn.body.body;
     for (let i = 0; i < outerbody.length; i++) {
