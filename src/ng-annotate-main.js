@@ -78,6 +78,8 @@ function getObjectExpressionReturnProperties(node) {
         node.body && node.body.type === "ObjectExpression") {
         return node.body.properties;
     }
+
+    return undefined;
 }
 
 function matchDirectiveReturnObject(node) {
