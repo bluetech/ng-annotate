@@ -75,7 +75,7 @@ function getObjectExpressionReturnProperties(node) {
     // matches object return via arrow function shortcut:
     // 1. () => ({})
     if (node.type === "ArrowFunctionExpression" && node.expression === true &&
-        node.body && node.body.type === "ObjectExpression") {
+        node.body.type === "ObjectExpression") {
         return node.body.properties;
     }
 
