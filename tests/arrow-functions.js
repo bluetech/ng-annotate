@@ -837,7 +837,6 @@ myMod.directive("donttouch", () => {
     });
 });
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // IIFE-jumping (primarily for compile-to-JS langs)
 angular.module("MyMod").directive("foo", function($a, $b) {
     $uibModal.open({
@@ -848,18 +847,15 @@ angular.module("MyMod").directive("foo", function($a, $b) {
     });
 });
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 var x = /*@ngInject*/ (() => $a => {
 })();
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // IIFE-jumping with reference support
 var myCtrl = (() => $scope => {
 })();
 angular.module("MyMod").controller("MyCtrl", myCtrl);
 
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // advanced IIFE-jumping (with reference support)
 var myCtrl10 = (() => {
     "use strict";
@@ -922,7 +918,6 @@ function MyDirective2($stateProvider) {
     });
 }
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // issue 84
 (() => {
     var MyCtrl = $someDependency => {};

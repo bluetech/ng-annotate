@@ -871,34 +871,32 @@ myMod.directive("donttouch", () => {
     }]);
 });
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // IIFE-jumping (primarily for compile-to-JS langs)
 angular.module("MyMod").directive("foo", ["$a", "$b", function($a, $b) {
     $uibModal.open({
         resolve: {
-            collection: (_this => $c => {
-            })(this),
+            collection: (_this => ["$c", $c => {
+            }])(this),
         },
     });
 }]);
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
-var x = /*@ngInject*/ (() => $a => {
-})();
+var x = /*@ngInject*/ (() => ["$a", $a => {
+}])();
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // IIFE-jumping with reference support
 var myCtrl = (() => $scope => {
 })();
+myCtrl.$inject = ["$scope"];
 angular.module("MyMod").controller("MyCtrl", myCtrl);
 
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // advanced IIFE-jumping (with reference support)
 var myCtrl10 = (() => {
     "use strict";
     // the return statement can appear anywhere on the functions topmost level,
     // including before the myCtrl function definition
+    myCtrl.$inject = ["$scope"];
     return myCtrl;
     function myCtrl($scope) {
         foo;
@@ -958,10 +956,10 @@ function MyDirective2($stateProvider) {
     });
 }
 
-// NOT IMPLEMENTED FOR ARROW FUNCTIONS:
 // issue 84
 (() => {
     var MyCtrl = $someDependency => {};
+    MyCtrl.$inject = ["$someDependency"];
     angular.module('myApp').controller("MyCtrl", MyCtrl);
     MyCtrl.prototype.someFunction = () => {};
 })();

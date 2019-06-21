@@ -1023,11 +1023,24 @@ function judgeInjectArraySuspect(node, ctx) {
 }
 
 function jumpOverIife(node) {
-    let outerfn;
-    if (!(node.type === "CallExpression" && (outerfn = node.callee).type === "FunctionExpression")) {
+    let outerfn = node.callee;
+    if (!(node.type === "CallExpression" && (outerfn.type === "FunctionExpression" || outerfn.type === "ArrowFunctionExpression"))) {
         return node;
     }
 
+    /**
+     * IIFE as in:
+     *  - (() => 'value')()
+     */
+    if (outerfn.type === "ArrowFunctionExpression" && outerfn.expression) {
+        return outerfn.body;
+    }
+
+    /**
+     * IIFE as in:
+     *  - (() => { return 'value' })()
+     *  - (function { return 'value' })()
+     */
     const outerbody = outerfn.body.body;
     for (let i = 0; i < outerbody.length; i++) {
         const statement = outerbody[i];

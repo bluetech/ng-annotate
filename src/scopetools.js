@@ -65,7 +65,7 @@ function createScopes(node, parent) {
             if (node.type === "FunctionDeclaration") {
                 // Function name goes in parent scope for declared functions
                 parent.$scope.add(node.id.name, "fun", node.id, null);
-            } else if (node.type === "FunctionExpression" || node.type === "ArrayFunctionExpression") {
+            } else if (node.type === "FunctionExpression") {
                 // Function name goes in function's scope for named function expressions
                 node.$scope.add(node.id.name, "fun", node.id, null);
             } else {
@@ -171,7 +171,7 @@ function isConstLet(kind) {
 }
 
 function isNonFunctionBlock(node, parent) {
-    return node.type === "BlockStatement" && parent.type !== "FunctionDeclaration" && parent.type !== "FunctionExpression" && parent.type !== "ArrayFunctionExpression";
+    return node.type === "BlockStatement" && parent.type !== "FunctionDeclaration" && parent.type !== "FunctionExpression" && parent.type !== "ArrowFunctionExpression";
 }
 
 function isForWithConstLet(node) {
@@ -187,7 +187,7 @@ function isForInOf(node) {
 }
 
 function isFunction(node) {
-    return node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrayFunctionExpression";
+    return node.type === "FunctionDeclaration" || node.type === "FunctionExpression" || node.type === "ArrowFunctionExpression";
 }
 
 function isReference(node) {
