@@ -1049,7 +1049,7 @@ function jumpOverIife(node) {
      *  needs to loop over children, as the return could be anywhere inside the body, as in:
      *  - (function { console.log('something before'); return 'value'; console.log('something behind, but valid javascript'); }()
      */
-    if (outerfn.type === "FunctionExpression") {
+    if (isFunctionOrArrowFunctionExpression(outerfn.type)) {
         const outerbody = outerfn.body.body;
         for (let i = 0; i < outerbody.length; i++) {
             const statement = outerbody[i];
