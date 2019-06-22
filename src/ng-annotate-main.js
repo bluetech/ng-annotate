@@ -862,7 +862,11 @@ function judgeInjectArraySuspect(node, ctx) {
             },
             className);
 
-    } else if (ctx.isFunctionOrArrowFunctionExpressionWithArgs(node) && onode.type !== "ExportDefaultDeclaration") {
+    } else if (node.type === "ArrowFunctionExpression" && onode.type === "ExportDefaultDeclaration") {
+        // not implemented
+        // this is a default exported arrow function like:
+        // - export default (a, b) => {}
+    } else if (ctx.isFunctionOrArrowFunctionExpressionWithArgs(node)) {
         // var x = 1, y = function(a,b) {}, z;
 
         assert(declaratorName);
