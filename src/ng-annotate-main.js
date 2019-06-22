@@ -1027,10 +1027,11 @@ function judgeInjectArraySuspect(node, ctx) {
 }
 
 function jumpOverIife(node) {
-    let outerfn = node.callee;
-    if (!(node.type === "CallExpression" && (outerfn.type === "FunctionExpression" || outerfn.type === "ArrowFunctionExpression"))) {
+    if (node.type !== "CallExpression") {
         return node;
     }
+
+    const outerfn = node.callee;
 
     /**
      * IIFE as in:
@@ -1048,11 +1049,13 @@ function jumpOverIife(node) {
      *  needs to loop over children, as the return could be anywhere inside the body, as in:
      *  - (function { console.log('something before'); return 'value'; console.log('something behind, but valid javascript'); }()
      */
-    const outerbody = outerfn.body.body;
-    for (let i = 0; i < outerbody.length; i++) {
-        const statement = outerbody[i];
-        if (statement.type === "ReturnStatement") {
-            return statement.argument;
+    if (outerfn.type === "FunctionExpression") {
+        const outerbody = outerfn.body.body;
+        for (let i = 0; i < outerbody.length; i++) {
+            const statement = outerbody[i];
+            if (statement.type === "ReturnStatement") {
+                return statement.argument;
+            }
         }
     }
 
