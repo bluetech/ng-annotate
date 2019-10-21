@@ -8,7 +8,6 @@ const assert = require("assert");
 const ngAnnotate = require("../src/ng-annotate-main");
 const fs = require("fs");
 const os = require("os");
-const path = require("path");
 const diff = require("diff");
 const SourceMapConsumer = require("source-map").SourceMapConsumer;
 const coffee = require("coffee-script");
@@ -157,7 +156,7 @@ function run(ngAnnotate) {
     const compiledSourcemaps = coffee.compile(originalSourcemaps, { sourceFiles: ["sourcemaps.coffee"], generatedFile: "sourcemaps.js", sourceMap: true });
     const annotatedSourcemaps = ngAnnotate(compiledSourcemaps.js, {remove: true, add: true, map: { sourceRoot: "/source/root/dir" }});
     test(slurp("tests/sourcemaps.annotated.js"), annotatedSourcemaps.src, "sourcemaps.annotated.js");
-    testSourcemap(compiledSourcemaps.js, annotatedSourcemaps.src, annotatedSourcemaps.map, "sourcemaps.annotated.js.map");
+    testSourcemap(compiledSourcemaps.js, annotatedSourcemaps.src, annotatedSourcemaps.map);
 
     console.log("testing sourcemap combination");
     const inlinedCompiledSourcemaps = compiledSourcemaps.js +
@@ -166,7 +165,7 @@ function run(ngAnnotate) {
     const combinedSourcemaps = ngAnnotate(inlinedCompiledSourcemaps, {remove: true, add: true, map: { inline: true, inFile: "sourcemaps.js", sourceRoot: "/source/root/dir" }});
     const combinedSourcemapsSrc = convertSourceMap.removeMapFileComments(combinedSourcemaps.src);
     const combinedSourcemapsMap = convertSourceMap.fromSource(combinedSourcemaps.src).toJSON();
-    testSourcemap(originalSourcemaps, combinedSourcemapsSrc, combinedSourcemapsMap, "sourcemaps.annotated.js.map");
+    testSourcemap(originalSourcemaps, combinedSourcemapsSrc, combinedSourcemapsMap);
 
     const ngminOriginal = slurp("tests/ngmin-tests/ngmin_original.js");
 
@@ -196,7 +195,7 @@ function run(ngAnnotate) {
 
     console.log("testing performance");
     const ng1 = String(fs.readFileSync("tests/angular.js"));
-    const ng5 = ng1 + ng1 + ng1 + ng1 + ng1;
+    // const ng5 = ng1 + ng1 + ng1 + ng1 + ng1;
 
     time("ng1", function() { ngAnnotate(ng1, {add: true}) });
     time("ng1 with sourcemaps", function() { ngAnnotate(ng1, {add: true, map: true}) });

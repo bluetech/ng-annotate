@@ -178,7 +178,7 @@ function runAnnotate(err, src) {
 
         const pct = function(n) {
             return Math.round(100 * n / all);
-        }
+        };
 
         process.stderr.write(`[${all} ms] parser: ${all_parser}, nga init: ${nga_init}, nga run: ${nga_run}\n`);
         process.stderr.write(`[%] parser: ${pct(all_parser)}, nga init: ${pct(nga_init)}, nga run: ${pct(nga_run)}\n`);

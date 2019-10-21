@@ -14,7 +14,6 @@ module.exports = class Lut {
         const sparseEnds = new Array(src.length);
         const ends = [];
         let p = 0;
-        const t0 = Date.now();
         traverse(ast, {pre: node => {
             //        assert (node.range[0] >= p);
             if (node.type === "Program") {
@@ -35,8 +34,6 @@ module.exports = class Lut {
         for (let i in sparseEnds) {
             ends.push(sparseEnds[i]);
         }
-        const t1 = Date.now();
-        //    console.error(t1-t0)
 
         // begins and ends are compact arrays with nodes,
         // sorted on node.range[0/1] (unique)

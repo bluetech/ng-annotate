@@ -135,7 +135,7 @@ function matchNgRoute(node) {
     if (args.length !== 2) {
         return false;
     }
-    const configArg = last(args)
+    const configArg = last(args);
     if (configArg.type !== "ObjectExpression") {
         return false;
     }
@@ -456,38 +456,6 @@ function stringify(ctx, arr, quot) {
     }).join(", ") + "]";
 }
 
-// stand-in for not having a jsshaper-style ref's
-function replaceNodeWith(node, newNode) {
-    let done = false;
-    const parent = node.$parent;
-    const keys = Object.keys(parent);
-    keys.forEach(function(key) {
-        if (parent[key] === node) {
-            parent[key] = newNode;
-            done = true;
-        }
-    });
-
-    if (done) {
-        return;
-    }
-
-    // second pass, now check arrays
-    keys.forEach(function(key) {
-        if (Array.isArray(parent[key])) {
-            const arr = parent[key];
-            for (let i = 0; i < arr.length; i++) {
-                if (arr[i] === node) {
-                    arr[i] = newNode;
-                    done = true;
-                }
-            }
-        }
-    });
-
-    assert(done);
-}
-
 function insertArray(ctx, functionExpression, positioningNode, fragments, quot) {
     const args = stringify(ctx, functionExpression.params, quot);
 
@@ -729,7 +697,7 @@ function followReference(node) {
         // {type: "VariableDeclarator", id: {type: "Identifier", name: "foo"}, init: ..}
         return parent;
     } else if (kind === "fun") {
-        assert(ptype === "FunctionDeclaration" || isFunctionOrArrowFunctionExpression(ptype))
+        assert(ptype === "FunctionDeclaration" || isFunctionOrArrowFunctionExpression(ptype));
         // FunctionDeclaration is the common case, i.e.
         // function foo(a, b) {}
 
@@ -1354,4 +1322,4 @@ module.exports = function ngAnnotate(src, options) {
     }
 
     return result;
-}
+};
