@@ -8,15 +8,15 @@
     "url": "https://github.com/bluetech/ng-annotate-patched.git"
   },
   "dependencies": {
-    "acorn": "^7.0.0",
-    "acorn-walk": "^7.0.0",
-    "convert-source-map": "^1.1.2",
-    "commander": "^3.0.1",
+    "acorn": "^7.1.1",
+    "acorn-walk": "^7.1.1",
+    "commander": "^4.1.1",
+    "convert-source-map": "^1.7.0",
     "source-map": "^0.6.1"
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",
-    "diff": "^4.0.0"
+    "diff": "^4.0.2"
   },
   "keywords": [
     "angular",
