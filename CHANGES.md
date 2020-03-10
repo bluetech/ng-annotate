@@ -1,3 +1,8 @@
+## 1.12.0 2020-03-10
+* Updated dependencies.
+* Don't crash on ES2018 object spread syntax. Note that for now, the
+  spread value is ignored and not processed further.
+
 ## 1.11.1 2019-09-03
 * Updated acorn from version 6 to 7.
 * Set the default acorn ECMAScript version to 11 (2020).
