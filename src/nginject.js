@@ -188,10 +188,10 @@ function addSuspect(target, ctx, block) {
 
 
     function addObjectExpression(node, ctx) {
-        nestedObjectValues(node).forEach(function(n) {
+        for (const n of nestedObjectValues(node)) {
             n.$limitToMethodName = "*never*";
             addOrBlock(n, ctx);
-        });
+        }
     }
 
     function addOrBlock(node, ctx) {
@@ -206,14 +206,14 @@ function addSuspect(target, ctx, block) {
 function nestedObjectValues(node, res) {
     res = res || [];
 
-    node.properties.forEach(function(prop) {
+    for (const prop of node.properties) {
         const v = prop.value;
         if (["FunctionExpression", "ArrowFunctionExpression", "ArrayExpression"].includes(v.type)) {
             res.push(v);
         } else if (v.type === "ObjectExpression") {
             nestedObjectValues(v, res);
         }
-    });
+    }
 
     return res;
 }

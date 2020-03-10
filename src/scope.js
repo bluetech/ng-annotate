@@ -59,9 +59,9 @@ module.exports = class Scope {
         }).join(", ");
         const propagates = this.propagates ? this.propagates.items().join(", ") : "";
         console.log(`${fmt.repeat(" ", indent)}${this.node.type}: ${names}. propagates: ${propagates}`);
-        this.children.forEach(c => {
+        for (const c of this.children) {
             c.print(indent + 2);
-        });
+        }
     }
 
     add(name, kind, node, referableFromPos) {

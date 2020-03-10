@@ -32,7 +32,7 @@ function createScopes(node, parent) {
 
     } else if (node.type === "VariableDeclaration") {
         // Variable declarations names goes in current scope
-        node.declarations.forEach(function(declarator) {
+        for (const declarator of node.declarations) {
             const pattern = declarator.id;
             if (pattern.type === "Identifier") {
                 const name = declarator.id.name;
@@ -48,7 +48,7 @@ function createScopes(node, parent) {
             } else {
                 assert(false);
             }
-        });
+        }
 
     } else if (isFunction(node)) {
         // Function is a scope, with params in it
@@ -73,7 +73,7 @@ function createScopes(node, parent) {
             }
         }
 
-        node.params.forEach(pattern => {
+        for (const pattern of node.params) {
             if (pattern.type === "Identifier") {
                 node.$scope.add(pattern.name, "param", pattern.name, null);
             } else if (pattern.type === "ObjectPattern") {
@@ -88,7 +88,7 @@ function createScopes(node, parent) {
                 console.log(pattern.type);
                 assert(false);
             }
-        });
+        }
 
     } else if (isForWithConstLet(node) || isForInOfWithConstLet(node)) {
         // For(In/Of) loop with const|let declaration is a scope, with declaration in it

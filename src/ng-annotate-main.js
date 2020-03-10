@@ -228,7 +228,9 @@ function matchNgUi(node) {
         if (!children) {
             return;
         }
-        children.forEach(recursiveMatch);
+        for (const child of children) {
+            recursiveMatch(child);
+        }
     }
 
     function matchStateProps(props, res) {
@@ -247,26 +249,26 @@ function matchNgUi(node) {
         // {params: {simple: function($scope) {}, inValue: { value: function($scope) {} }}
         const a = matchProp("params", props);
         if (a && a.type === "ObjectExpression") {
-            a.properties.forEach(function(prop) {
+            for (const prop of a.properties) {
                 if (prop.value.type === "ObjectExpression") {
                     res.push(matchProp("value", prop.value.properties));
                 } else {
                     res.push(prop.value);
                 }
-            });
+            }
         }
 
         // {view: ...}
         const viewObject = matchProp("views", props);
         if (viewObject && viewObject.type === "ObjectExpression") {
-            viewObject.properties.forEach(function(prop) {
+            for (const prop of viewObject.properties) {
                 if (prop.value.type === "ObjectExpression") {
                     res.push(matchProp("controller", prop.value.properties));
                     res.push(matchProp("controllerProvider", prop.value.properties));
                     res.push(matchProp("templateProvider", prop.value.properties));
                     res.push.apply(res, matchResolve(prop.value.properties));
                 }
-            });
+            }
         }
     }
 }
@@ -582,9 +584,9 @@ function judgeSuspects(ctx) {
         return jumpedAndFollowed;
     }).filter(Boolean), 2);
 
-    finalSuspects.forEach(function(target) {
+    for (const target of finalSuspects) {
         if (target.$chained !== chainedRegular) {
-            return;
+            continue;
         }
 
         let constructor;
@@ -603,11 +605,11 @@ function judgeSuspects(ctx) {
             // if it's not array or function-expression, then it's a candidate for foo.$inject = [..]
             judgeInjectArraySuspect(target, ctx);
         }
-    });
+    }
 
 
     function propagateModuleContextAndMethodName(suspects) {
-        suspects.forEach(function(target) {
+        for (const target of suspects) {
             if (target.$chained !== chainedRegular && isInsideModuleContext(target)) {
                 target.$chained = chainedRegular;
             }
@@ -618,7 +620,7 @@ function judgeSuspects(ctx) {
                     target.$methodName = methodName;
                 }
             }
-        });
+        }
     }
 
     function findOuterMethodName(node) {
@@ -629,7 +631,7 @@ function judgeSuspects(ctx) {
 
     function setChainedAndMethodNameThroughIifesAndReferences(suspects) {
         let modified = false;
-        suspects.forEach(function(target) {
+        for (const target of suspects) {
             const jumped = jumpOverIife(target);
             if (jumped !== target) { // we did skip an IIFE
                 if (target.$chained === chainedRegular && jumped.$chained !== chainedRegular) {
@@ -653,7 +655,7 @@ function judgeSuspects(ctx) {
                     jumpedAndFollowed.$methodName = jumped.$methodName;
                 }
             }
-        });
+        }
         return modified;
     }
 
@@ -893,7 +895,7 @@ function judgeInjectArraySuspect(node, ctx) {
         let foundSuspectInBody = false;
         let existingExpressionStatementWithArray = null;
         let nodeAfterExtends = null;
-        onode.$parent.body.forEach(function(bnode, idx) {
+        for (const [idx, bnode] of onode.$parent.body.entries()) {
             if (bnode === onode) {
                 foundSuspectInBody = true;
             }
@@ -914,7 +916,7 @@ function judgeInjectArraySuspect(node, ctx) {
                     nodeAfterExtends = nextStatement;
                 }
             }
-        });
+        }
         assert(foundSuspectInBody);
         if (onode.type === "FunctionDeclaration") {
             if (!nodeAfterExtends) {
@@ -1146,9 +1148,9 @@ module.exports = function ngAnnotate(src, options) {
     const re = (options.regexp ? new RegExp(options.regexp) : /^[a-zA-Z0-9_\$\.\s]+$/);
     const rename = new Map();
     if (options.rename) {
-        options.rename.forEach(function(value) {
+        for (const value of options.rename) {
             rename.set(value.from, value.to);
-        });
+        }
     }
     let ast;
     const stats = {};
@@ -1275,9 +1277,9 @@ module.exports = function ngAnnotate(src, options) {
     const matchPluginsOrNull = (plugins.length === 0 ? null : matchPlugins);
 
     ngInject.inspectComments(ctx);
-    plugins.forEach(function(plugin) {
+    for (const plugin of plugins) {
         plugin.init(ctx);
-    });
+    }
 
     traverse(ast, {pre: function(node) {
         ngInject.inspectNode(node, ctx);

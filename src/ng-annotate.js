@@ -103,11 +103,11 @@ function runAnnotate(err, src) {
         config.inFile = filename;
     }
 
-    ["add", "remove", "o", "regexp", "rename", "single_quotes", "plugin", "enable", "stats"].forEach(function(opt) {
+    for (const opt of ["add", "remove", "o", "regexp", "rename", "single_quotes", "plugin", "enable", "stats"]) {
         if (opt in program) {
             config[opt] = program[opt];
         }
-    });
+    }
 
     if (program.sourcemap) {
         config.map = { inline: true, sourceRoot: program.sourceroot };
