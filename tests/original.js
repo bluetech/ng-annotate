@@ -1059,3 +1059,7 @@ export var exportVariableFunctionVar3 = function($scope) {
 })();
 
 import('dynamic-import-is-allowed.js').then(module => {});
+
+// issue #18 - ES2018 object spread (doesn't crash).
+
+const copyObj = { ...obj };

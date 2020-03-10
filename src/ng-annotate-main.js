@@ -250,6 +250,9 @@ function matchNgUi(node) {
         const a = matchProp("params", props);
         if (a && a.type === "ObjectExpression") {
             for (const prop of a.properties) {
+                if (prop.type !== "Property") {
+                    continue;
+                }
                 if (prop.value.type === "ObjectExpression") {
                     res.push(matchProp("value", prop.value.properties));
                 } else {
@@ -262,6 +265,9 @@ function matchNgUi(node) {
         const viewObject = matchProp("views", props);
         if (viewObject && viewObject.type === "ObjectExpression") {
             for (const prop of viewObject.properties) {
+                if (prop.type !== "Property") {
+                    continue;
+                }
                 if (prop.value.type === "ObjectExpression") {
                     res.push(matchProp("controller", prop.value.properties));
                     res.push(matchProp("controllerProvider", prop.value.properties));
@@ -427,6 +433,9 @@ function last(arr) {
 function matchProp(name, props) {
     for (let i = 0; i < props.length; i++) {
         const prop = props[i];
+        if (prop.type !== "Property") {
+            continue;
+        }
         if ((prop.key.type === "Identifier" && prop.key.name === name) ||
             (prop.key.type === "Literal" && prop.key.value === name)) {
             return prop.value; // FunctionExpression or ArrayExpression
@@ -437,13 +446,17 @@ function matchProp(name, props) {
 
 function matchResolve(props) {
     const resolveObject = matchProp("resolve", props);
+    const values = [];
     if (resolveObject && resolveObject.type === "ObjectExpression") {
-        return resolveObject.properties.map(function(prop) {
-            return prop.value;
-        });
+        for (const prop of resolveObject.properties) {
+            if (prop.type !== "Property") {
+                continue;
+            }
+            values.push(prop.value);
+        }
     }
-    return [];
-};
+    return values;
+}
 
 function renamedString(ctx, originalString) {
     if (ctx.rename) {

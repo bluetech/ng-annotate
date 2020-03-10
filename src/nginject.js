@@ -207,6 +207,9 @@ function nestedObjectValues(node, res) {
     res = res || [];
 
     for (const prop of node.properties) {
+        if (prop.type !== "Property") {
+            continue;
+        }
         const v = prop.value;
         if (["FunctionExpression", "ArrowFunctionExpression", "ArrayExpression"].includes(v.type)) {
             res.push(v);
