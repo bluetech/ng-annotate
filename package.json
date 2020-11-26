@@ -16,7 +16,7 @@
   },
   "devDependencies": {
     "coffee-script": "^1.10.0",
-    "diff": "^4.0.2"
+    "diff": "^5.0.0"
   },
   "keywords": [
     "angular",
