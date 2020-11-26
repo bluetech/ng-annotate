@@ -1,3 +1,8 @@
+## 1.13.0 2020-11-26
+* Updated acorn from version 7 to version 8.
+* Changed the default acorn `ecmaVersion` from 11 to "latest".
+* Updated dependencies.
+
 ## 1.12.0 2020-03-10
 * Updated dependencies.
 * Don't crash on ES2018 object spread syntax. Note that for now, the
