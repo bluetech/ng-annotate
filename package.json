@@ -32,7 +32,9 @@
   "scripts": {
     "test": "node tests/run-tests"
   },
-  "bin": "./ng-annotate",
+  "bin": {
+    "ng-annotate-patched": "ng-annotate"
+  },
   "author": "Olov Lassus <olov.lassus@gmail.com>",
   "license": "MIT"
 }
