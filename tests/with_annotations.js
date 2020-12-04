@@ -1112,3 +1112,9 @@ import('dynamic-import-is-allowed.js').then(module => {});
 // issue #18 - ES2018 object spread (doesn't crash).
 
 const copyObj = { ...obj };
+
+// issue #19 - async await (doesn't crash).
+
+async function foo(foo) {
+    await bar();
+}
